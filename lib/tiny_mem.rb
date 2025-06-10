@@ -2,6 +2,14 @@
 # size (rss) (i.e. total memory allocated and still in use).
 #
 # ex:
+#   # track a single measurement
+#   TinyMem.measure do
+#     Array.new(100_000) { 'hello' }
+#   end
+#
+#   => [70568,  72732, 2164]
+#
+#   # track measurements over time
 #   mem = TinyMem.new
 #   mem.measure 'array_alloc' do
 #     Array.new(100_000) { 'hello' }
@@ -9,15 +17,11 @@
 #
 #   mem.measure 'nothing'
 #
-#   pp mem.stats
-# ```
-#
-# this would output something like:
-#
-#   [
-#     ["array_alloc", 70568,  72732, 2164   ],
-#     ["nothing",     72744,  72744, 0      ]
-#   ]  ^label         ^before ^after ^change ... in kilobytes
+#    > mem.stats
+#   => [
+#        ["array_alloc", 70568,  72732, 2164   ],
+#        ["nothing",     72744,  72744, 0      ]
+#      ]  ^label         ^before ^after ^diff ... in kilobytes
 class TinyMem
   attr_reader :stats
 
@@ -26,15 +30,23 @@ class TinyMem
   end
 
   def measure(label)
+    before, after, diff = TinyMem.measure do
+                            yield if block_given?
+                          end
+
+    @stats << [label, before, after, diff]
+  end
+
+  def self.measure
     pid = Process.pid
     before = _mem
     yield if block_given?
     after = _mem
 
-    @stats << [label, before, after, after-before]
+    [before, after, after-before]
   end
 
-  def _mem
+  def self._mem
     case RUBY_PLATFORM
     when /linux/
       begin

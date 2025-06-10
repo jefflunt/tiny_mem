@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = "tiny_mem"
-  s.version     = "1.0.0"
+  s.version     = "1.1.0"
   s.description = "a small utility for measuring memory consumed by little bits of your code"
   s.summary     = "a small utility for measuring memory consumed by little bits of your code"
   s.authors     = ["Jeff Lunt"]
