@@ -8,35 +8,8 @@
 #   end
 #
 #   => [70568,  72732, 2164]
-#
-#   # track measurements over time
-#   mem = TinyMem.new
-#   mem.measure 'array_alloc' do
-#     Array.new(100_000) { 'hello' }
-#   end
-#
-#   mem.measure 'nothing'
-#
-#    > mem.stats
-#   => [
-#        ["array_alloc", 70568,  72732, 2164   ],
-#        ["nothing",     72744,  72744, 0      ]
-#      ]  ^label         ^before ^after ^diff ... in kilobytes
-class TinyMem
-  attr_reader :stats
-
-  def initialize
-    @stats = []
-  end
-
-  def measure(label)
-    before, after, diff = TinyMem.measure do
-                            yield if block_given?
-                          end
-
-    @stats << [label, before, after, diff]
-  end
-
+#       ^before ^after ^diff ... in kilobytes
+module TinyMem
   def self.measure
     pid = Process.pid
     before = _mem
